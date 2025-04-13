@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>حاسبة الضربة الحرجة</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            background: url('https://example.com/your-image.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow-x: hidden;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+            padding: 30px 15px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(8px);
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        label {
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .result {
+            margin-top: 30px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+
+        .notice {
+            font-size: 0.9em;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script>
+        function calculateDamage() {
+            const normalDamage = parseFloat(document.getElementById("normal_damage").value);
+            const cardDamage = parseFloat(document.getElementById("card_damage").value);
+            let critRate = parseFloat(document.getElementById("crit_rate").value);
+            const notice = document.getElementById("notice");
+
+            if (isNaN(normalDamage) || isNaN(cardDamage)) {
+                alert("يرجى إدخال القيم المطلوبة");
+                return;
+            }
+
+            if (isNaN(critRate)) critRate = 0;
+            if (critRate > 100) {
+                critRate = 100;
+                notice.innerText = "⚠️ تم تعديل نسبة حدوث الضربة الحرجة إلى 100% لأنها لا يمكن أن تتجاوز ذلك.";
+            } else {
+                notice.innerText = "";
+            }
+
+            const criticalDamage = normalDamage * (1 + (cardDamage / 100));
+            const damageWithCrit = criticalDamage * (critRate / 100);
+            const damageWithoutCrit = normalDamage * (1 - (critRate / 100));
+            const totalDamage = damageWithCrit + damageWithoutCrit;
+
+            document.getElementById("critical_damage_result").innerHTML = "🔴 ضرر الضربة الحرجة: <b>" + criticalDamage.toFixed(2) + "</b>";
+            document.getElementById("total_damage_result").innerHTML = "⚡ معدل الضرر الكلي: <b>" + totalDamage.toFixed(2) + "</b>";
+        }
+    </script>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <h1>حاسبة ضرر الضربة الحرجة</h1>
+            <form onsubmit="event.preventDefault(); calculateDamage();">
+                <label for="normal_damage">الضرر العادي (بدون كرت):</label>
+                <input type="number" id="normal_damage" placeholder="مثال: 20000" required>
+
+                <label for="card_damage">نسبة الكرت دمج (%):</label>
+                <input type="number" id="card_damage" placeholder="مثال: 300" required>
+
+                <label for="crit_rate">نسبة حدوث الضربة الحرجة (%):</label>
+                <input type="number" id="crit_rate" placeholder="مثال: 70 (اختياري)">
+
+                <div class="notice" id="notice"></div>
+
+                <button type="submit">حساب الضرر</button>
+            </form>
+
+            <div class="result">
+                <p id="critical_damage_result"></p>
+                <p id="total_damage_result"></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
