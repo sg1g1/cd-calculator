@@ -1,20 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <head>
     <meta charset="UTF-8">
-    <title>حاسبة الضربة الحرجة</title>
+    <title>حاسبة الكرت فاليو وضرر الضربة الحرجة</title>
 
-    <!-- إضافة الأيقونة للموقع -->
-   <link rel="icon" href="https://raw.githubusercontent.com/sg1g1/cd-calculator/refs/heads/main/icon.ico">
-    
-    <style>
-        /* باقي الكود كما هو */
-    </style>
-</head>
+    <link rel="icon" href="https://raw.githubusercontent.com/sg1g1/cd-calculator/refs/heads/main/icon.ico" type="image/x-icon">
 
-    <meta charset="UTF-8">
-    <title>حاسبة الضربة الحرجة</title>
     <style>
         html, body {
             margin: 0;
@@ -23,7 +14,17 @@
             font-family: 'Arial', sans-serif;
             background: url('https://upload-os-bbs.hoyolab.com/upload/2025/02/02/17138284/7ac4d008141a7bc6c672afbcf31f297a_2686842025734613490.jpeg?x-oss-process=image%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70') no-repeat center center fixed;
             background-size: cover;
+            background-position: center center;
+            transition: background-position 0.6s ease;
             overflow-x: hidden;
+        }
+
+        body.bg-right {
+            background-position: right center;
+        }
+
+        body.bg-left {
+            background-position: left center;
         }
 
         .overlay {
@@ -47,6 +48,34 @@
             text-align: center;
             margin-bottom: 25px;
             font-size: 2em;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         label {
@@ -97,7 +126,6 @@
             margin-bottom: 10px;
         }
 
-        /* إضافة تنسيق الأيقونة في الأسفل */
         .discord-container {
             position: fixed;
             bottom: 20px;
@@ -121,70 +149,138 @@
             font-size: 1.1em;
             margin-right: 10px;
         }
-
     </style>
 
     <script>
+        function calculateCardValue() {
+            const cardMerge = parseFloat(document.getElementById("card_merge").value);
+            const cardRate = parseFloat(document.getElementById("card_rate").value);
+            if (!isNaN(cardMerge) && !isNaN(cardRate)) {
+                let cardValue = cardMerge + (cardRate * 2);
+                document.getElementById("card_value_result").innerHTML = "🔮 الكرت فاليو: <b>" + cardValue.toFixed(2) + "</b>";
+
+                // أفضل توزيع للنسب الجديد
+                let mergeNormal, rateNormal;
+                if (cardValue <= 400) {
+                    mergeNormal = cardValue / 2;
+                    rateNormal = cardValue / 4;
+                } else {
+                    mergeNormal = cardValue - 200;
+                    rateNormal = 100;
+                }
+
+                document.getElementById("best_distribution").innerHTML =
+                    "✨ أفضل توزيع للنسب:<br>" +
+                    "- Crit DMG = <b>" + mergeNormal.toFixed(2) + "%</b><br>" +
+                    "- Crit rate = <b>" + rateNormal.toFixed(2) + "%</b>";
+
+                // اقتراح للتحديات
+                let suggestion = "🚫 لا يوجد اقتراح مناسب.";
+                if (cardValue >= 240 && cardValue < 300) {
+                    suggestion = "-Crit rate = <b>60%</b><br>- الكرت دمج: <b>" + (cardValue - 120).toFixed(2) + "%</b>";
+                } else if (cardValue >= 300 && cardValue < 390) {
+                    suggestion = "- Crit rate = <b>70%</b><br>- Crit DMG = <b>" + (cardValue - 140).toFixed(2) + "%</b>";
+                } else if (cardValue >= 390) {
+                    suggestion = "- Crit rate = <b>80%</b><br>- Crit DMG = <b>" + (cardValue - 160).toFixed(2) + "%</b>";
+                }
+
+                document.getElementById("challenge_suggestion").innerHTML = "💡 اقتراح للتحديات:<br>" + suggestion;
+            }
+        }
+
         function calculateDamage() {
             const normalDamage = parseFloat(document.getElementById("normal_damage").value);
             const cardDamage = parseFloat(document.getElementById("card_damage").value);
             let critRate = parseFloat(document.getElementById("crit_rate").value);
             const notice = document.getElementById("notice");
 
-            if (isNaN(normalDamage) || isNaN(cardDamage)) {
-                alert("يرجى إدخال القيم المطلوبة");
-                return;
-            }
+            if (!isNaN(normalDamage) && !isNaN(cardDamage)) {
+                if (isNaN(critRate)) critRate = 0;
+                if (critRate > 100) {
+                    critRate = 100;
+                    notice.innerText = "⚠️ تم تعديل نسبة حدوث الضربة الحرجة إلى 100% لأنها لا يمكن أن تتجاوز ذلك.";
+                } else {
+                    notice.innerText = "";
+                }
 
-            if (isNaN(critRate)) critRate = 0;
-            if (critRate > 100) {
-                critRate = 100;
-                notice.innerText = "⚠️ لديك نسبة كرت ريت فائضة , انصح بتقليلها و تعويضها باحصائات اخرى";
+                const criticalDamage = normalDamage * (1 + (cardDamage / 100));
+                const damageWithCrit = criticalDamage * (critRate / 100);
+                const damageWithoutCrit = normalDamage * (1 - (critRate / 100));
+                const totalDamage = damageWithCrit + damageWithoutCrit;
+
+                document.getElementById("critical_damage_result").innerHTML = "🔴 ضرر الضربة الحرجة: <b>" + criticalDamage.toFixed(2) + "</b>";
+                document.getElementById("total_damage_result").innerHTML = "⚡ معدل الضرر لكل ضربة: <b>" + totalDamage.toFixed(2) + "</b>";
+            }
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            // تغيير اتجاه الخلفية حسب التبويب
+            if (tabName === "critical_damage_tab") {
+                document.body.classList.remove('bg-left');
+                document.body.classList.add('bg-right');
             } else {
-                notice.innerText = "";
+                document.body.classList.remove('bg-right');
+                document.body.classList.add('bg-left');
             }
-
-            const criticalDamage = normalDamage * (1 + (cardDamage / 100));
-            const damageWithCrit = criticalDamage * (critRate / 100);
-            const damageWithoutCrit = normalDamage * (1 - (critRate / 100));
-            const totalDamage = damageWithCrit + damageWithoutCrit;
-
-            document.getElementById("critical_damage_result").innerHTML = "🔴 ضرر الضربة الحرجة: <b>" + criticalDamage.toFixed(2) + "</b>";
-            document.getElementById("total_damage_result").innerHTML = "⚡ معدل الضرر الكلي: <b>" + totalDamage.toFixed(2) + "</b>";
         }
     </script>
 </head>
-<body>
+<body class="bg-left">
     <div class="overlay">
         <div class="container">
-            <h1>حاسبة ضرر الضربة الحرجة</h1>
-            <form onsubmit="event.preventDefault(); calculateDamage();">
-                <label for="normal_damage">الضرر العادي (بدون كرت):</label>
-                <input type="number" id="normal_damage" placeholder="مثال: 20000" step="any" required>
+            <h1>حاسبة الكرت فاليو وضرر الضربة الحرجة</h1>
 
-                <label for="card_damage">نسبة الكرت دمج (%):</label>
-                <input type="number" id="card_damage" placeholder="مثال: 200" step="any" required>
+            <div class="tab-buttons">
+                <button onclick="showTab('card_value_tab')">حاسبة الكرت فاليو</button>
+                <button onclick="showTab('critical_damage_tab')">حاسبة ضرر الضربة الحرجة</button>
+            </div>
 
-                <label for="crit_rate"> نسبةالكرت ريت (%) (اختياري):</label>
-                <input type="number" id="crit_rate" placeholder="مثال: 70 " step="any">
+            <div id="card_value_tab" class="tab-content active">
+                <form>
+                    <label for="card_merge">الكرت دمج (%):</label>
+                    <input type="number" id="card_merge" placeholder="مثال: 200" step="any" oninput="calculateCardValue()">
 
-                <div class="notice" id="notice"></div>
+                    <label for="card_rate">الكرت ريت:</label>
+                    <input type="number" id="card_rate" placeholder="مثال: 100" step="any" oninput="calculateCardValue()">
+                </form>
 
-                <button type="submit">حساب الضرر</button>
-            </form>
+                <div class="result">
+                    <p id="card_value_result"></p>
+                    <p id="best_distribution"></p>
+                    <p id="challenge_suggestion"></p>
+                </div>
+            </div>
 
-            <div class="result">
-                <p id="critical_damage_result"></p>
-                <p id="total_damage_result"></p>
+            <div id="critical_damage_tab" class="tab-content">
+                <form>
+                    <label for="normal_damage">الضرر العادي (بدون كرت):</label>
+                    <input type="number" id="normal_damage" placeholder="مثال: 20000" step="any" oninput="calculateDamage()">
+
+                    <label for="card_damage">نسبة الكرت دمج %:</label>
+                    <input type="number" id="card_damage" placeholder="مثال: 200" step="any" oninput="calculateDamage()">
+
+                    <label for="crit_rate"> نسبة الكرت ريت % (اختياري):</label>
+                    <input type="number" id="crit_rate" placeholder="مثال: 70" step="any" oninput="calculateDamage()">
+
+                    <div class="notice" id="notice"></div>
+                </form>
+
+                <div class="result">
+                    <p id="critical_damage_result"></p>
+                    <p id="total_damage_result"></p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- إضافة الأيقونة أسفل الصفحة -->
     <div class="discord-container">
         <span class="discord-text">للتواصل مع بتيتة</span>
         <a href="https://discord.gg/M4tDDgbFUZ" target="_blank">
-            <img src="https://img.utdstc.com/icon/5ed/010/5ed01047ff16ea45ec92a448cd98f0a807eeca466da7c176a1b2b5f2ca8deb66:200" alt="Discord Icon" class="discord-icon">
+            <img src="https://img.icons8.com/ios/452/discord-logo.png" class="discord-icon" alt="discord">
         </a>
     </div>
 </body>
