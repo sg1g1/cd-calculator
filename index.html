@@ -9,7 +9,7 @@
             padding: 0;
             height: 100%;
             font-family: 'Arial', sans-serif;
-            background: url('https://static.zerochan.net/Genshin.Impact.full.3908240.gif') no-repeat center center fixed;
+            background: url('https://upload-os-bbs.hoyolab.com/upload/2025/02/02/17138284/7ac4d008141a7bc6c672afbcf31f297a_2686842025734613490.jpeg?x-oss-process=image%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70') no-repeat center center fixed;
             background-size: cover;
             overflow-x: hidden;
         }
@@ -84,6 +84,32 @@
             color: #ffcc00;
             margin-bottom: 10px;
         }
+
+        /* إضافة تنسيق الأيقونة في الأسفل */
+        .discord-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.3);
+            padding: 10px;
+            border-radius: 50px;
+        }
+
+        .discord-icon {
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+        }
+
+        .discord-text {
+            color: white;
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+
     </style>
 
     <script>
@@ -122,13 +148,13 @@
             <h1>حاسبة ضرر الضربة الحرجة</h1>
             <form onsubmit="event.preventDefault(); calculateDamage();">
                 <label for="normal_damage">الضرر العادي (بدون كرت):</label>
-                <input type="number" id="normal_damage" placeholder="مثال: 20000" required>
+                <input type="number" id="normal_damage" placeholder="مثال: 20000" step="any" required>
 
                 <label for="card_damage">نسبة الكرت دمج (%):</label>
-                <input type="number" id="card_damage" placeholder="مثال: 300" required>
+                <input type="number" id="card_damage" placeholder="مثال: 200" step="any" required>
 
-                <label for="crit_rate">نسبة حدوث الضربة الحرجة (%):</label>
-                <input type="number" id="crit_rate" placeholder="مثال: 70 (اختياري)">
+                <label for="crit_rate"> نسبة حدوث الضربة الحرجة (%) (اختياري):</label>
+                <input type="number" id="crit_rate" placeholder="مثال: 70 " step="any">
 
                 <div class="notice" id="notice"></div>
 
@@ -140,6 +166,14 @@
                 <p id="total_damage_result"></p>
             </div>
         </div>
+    </div>
+
+    <!-- إضافة الأيقونة أسفل الصفحة -->
+    <div class="discord-container">
+        <span class="discord-text">للتواصل مع بتيتة</span>
+        <a href="https://discord.gg/M4tDDgbFUZ" target="_blank">
+            <img src="https://img.utdstc.com/icon/5ed/010/5ed01047ff16ea45ec92a448cd98f0a807eeca466da7c176a1b2b5f2ca8deb66:200" alt="Discord Icon" class="discord-icon">
+        </a>
     </div>
 </body>
 </html>
